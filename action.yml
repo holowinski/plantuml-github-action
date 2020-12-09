@@ -1,0 +1,15 @@
+name: "PlantUML generator"
+description: "Generate plantUML diagrams"
+author: "@holowinski"
+
+inputs:
+  args:
+    description: "Arguments for PlantUML"
+    required: true
+    default: "-h"
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.args }}
