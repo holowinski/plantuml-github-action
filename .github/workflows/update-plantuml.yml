@@ -10,10 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Fetch tags
-        run: |
-          git fetch --tags
-
       - id: plantuml
         # using plantuml-server because plantuml for some reason returns empty list of releases
         name: PlantUML latest release
@@ -23,7 +19,7 @@ jobs:
       - name: "Get latest tag"
         id: current
         run: |
-          echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
+          echo "::set-output name=tag::$(git ls-remote --tags --refs --sort="v:refname" origin | tail -n1 | sed 's/.*\///')"
 
       - name: Bump docker version
         if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
