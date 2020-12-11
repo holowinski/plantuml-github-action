@@ -61,4 +61,4 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: holowinski/plantuml:latest, holowinski/plantuml:${{ setps.plantuml.outputs.tag }}
+          tags: holowinski/plantuml:latest, holowinski/plantuml:${{ steps.plantuml.outputs.tag }}
