@@ -1,3 +1,3 @@
 #!/bin/sh
 
-sh -c "java -jar /app/plantuml.jar $*"
+sh -c "java -jar /app/plantuml.jar -headless $*"
