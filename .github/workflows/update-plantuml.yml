@@ -11,6 +11,8 @@ jobs:
       tag: ${{ steps.plantuml.outputs.tag }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: "auto-update"
 
       - id: plantuml
         # using plantuml-server because plantuml for some reason returns empty list of releases
