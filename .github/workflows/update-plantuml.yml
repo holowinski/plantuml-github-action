@@ -62,3 +62,5 @@ jobs:
         with:
           push: true
           tags: holowinski/plantuml:latest, holowinski/plantuml:${{ steps.plantuml.outputs.tag }}
+          build-args: |
+            PLANTUML_VERSION=${{ steps.plantuml.outputs.tag }}
