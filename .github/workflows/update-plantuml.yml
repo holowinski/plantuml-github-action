@@ -26,10 +26,6 @@ jobs:
         run: |
           sed -i "s#holowinski/plantuml:.*#holowinski/plantuml:${{ steps.plantuml.outputs.tag }}\"#" action.yml
 
-      - name: Compare versions
-        run: |
-          echo "plant: ${{ steps.plantuml.outputs.tag }} vs local ${{ steps.current.outputs.tag }} equal ?: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}"
-
       - name: Push Local Changes
         if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
         uses: stefanzweifel/git-auto-commit-action@v4.7.2
@@ -42,7 +38,7 @@ jobs:
         uses: anothrNick/github-tag-action@1.33.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CUSTOM_TAG: v${{ steps.plantuml.outputs.tag }}
+          CUSTOM_TAG: ${{ steps.plantuml.outputs.tag }}
           RELEASE_BRANCHES: main
 
       - name: Set up QEMU
