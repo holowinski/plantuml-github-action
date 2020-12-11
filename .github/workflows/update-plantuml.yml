@@ -18,7 +18,8 @@ jobs:
 
       - name: "Get Latest tag"
         id: current
-        uses: "WyriHaximus/github-action-get-previous-tag@master"
+        run: |
+          echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
 
       - name: Bump docker version
         if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
