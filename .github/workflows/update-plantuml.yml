@@ -27,14 +27,14 @@ jobs:
       - name: Bump docker version
         if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
         run: |
-          sed -i "s#holowinski/plantuml:.*#holowinski/plantuml:${{ needs.plant_version.outputs.tag }}#" action.yml
+          sed -i "s#holowinski/plantuml:.*#holowinski/plantuml:${{ steps.plantuml.outputs.tag }}#" action.yml
 
       - name: Push Local Changes
         if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
         uses: stefanzweifel/git-auto-commit-action@v4.1.2
         with:
           ref: ${{ github.head_ref }}
-          commit_message: "Bump PlantUML to ${{ needs.plant_version.outputs.tag }}"
+          commit_message: "Bump PlantUML to ${{ steps.plantuml.outputs.tag }}"
 
       - name: Bump version and push tag
         if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
