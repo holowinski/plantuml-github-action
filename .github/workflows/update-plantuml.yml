@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  bumpPlant:
+  bump_plant:
     runs-on: ubuntu-latest
     outputs:
       bumped: ${{steps.plantuml.outputs.tag != steps.current.outputs.tag}}
@@ -31,17 +31,17 @@ jobs:
 
   tag:
     runs-on: ubuntu-latest
-    needs: bumpPlant
-    if: ${{ needs.bumpPlant.outputs.bumped }}
+    needs: bump_plant
+    if: ${{ needs.bump_plant.outputs.bumped }}
     name: Build and push docker
     steps:
       - name: Test
-        run: echo "${{ needs.bumpPlant.outputs.bumped }} >> ${{ needs.[bump-plantuml].outputs.tag }}"
+        run: echo "${{ needs.bump_plant.outputs.bumped }} >> ${{ needs.bumpPlant.outputs.tag }}"
 
       - name: Bump docker version
         if: ${{ steps.current.outputs.tag != steps.plantuml.outputs.tag  }}
         run: |
-          sed -i "s#holowinski/plantuml:.*#holowinski/plantuml:${{ needs.bumpPlant.outputs.tag }}#" action.yml
+          sed -i "s#holowinski/plantuml:.*#holowinski/plantuml:${{ needs.bump_plant.outputs.tag }}#" action.yml
           cat action.yml
 
       - name: Push Local Changes
