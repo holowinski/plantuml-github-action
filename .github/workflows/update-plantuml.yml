@@ -10,13 +10,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Fetch tags
+        run: |
+          git fetch --tags
+
       - id: plantuml
         # using plantuml-server because plantuml for some reason returns empty list of releases
         name: PlantUML latest release
         run: |
           echo "::set-output name=tag::$(curl -s https://api.github.com/repos/plantuml/plantuml-server/releases/latest | grep tag_name | sed 's/.*"tag_name": "v\(.*\)",/\1/')"
 
-      - name: "Get Latest tag"
+      - name: "Get latest tag"
         id: current
         run: |
           echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
