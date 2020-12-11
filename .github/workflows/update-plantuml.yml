@@ -41,6 +41,7 @@ jobs:
         id: tag_version
         uses: mathieudutour/github-tag-action@v5.1
         with:
+          release_branches: main
           github_token: ${{ secrets.GITHUB_TOKEN }}
           custom_tag: ${{ steps.plantuml.outputs.tag  }}
 
