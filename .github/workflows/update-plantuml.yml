@@ -1,0 +1,72 @@
+name: Update PlantUML
+on:
+  schedule:
+    - cron: "0 * * * *"
+
+jobs:
+  bumpPlant:
+    runs-on: ubuntu-latest
+    outputs:
+      bumped: ${{steps.plantuml.outputs.tag != steps.current.outputs.tag}}
+      tag: ${{ steps.plantuml.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - id: plantuml
+        # using plantuml-server because plantuml for some reason returns empty list of releases
+        name: PlantUML latest release
+        run: |
+          echo "::set-output name=tag::$(curl -s https://api.github.com/repos/plantuml/plantuml-server/releases/latest | grep tag_name | sed 's/.*"tag_name": "\(.*\)",/\1/')"
+
+      # - name: "Get Latest tag"
+      #   id: current
+      #   uses: "WyriHaximus/github-action-get-previous-tag@master"
+
+      - id: current
+        name: Get current tag
+        run: echo "::set-output name=initial"
+
+  tag:
+    runs-on: ubuntu-latest
+    needs: bumpPlant
+    if: ${{ needs.bumpPlant.outputs.bumped }}
+    name: Build and push docker
+    steps:
+      - name: Test
+        run: echo "${{ needs.bumpPlant.outputs.bumped }} >> ${{ needs.[bump-plantuml].outputs.tag }}"
+
+      - name: Bump docker version
+        if: ${{ steps.current.outputs.tag != steps.plantuml.outputs.tag  }}
+        run: |
+          sed -i "s#holowinski/plantuml:.*#holowinski/plantuml:${{ needs.bumpPlant.outputs.tag }}#" action.yml
+          cat action.yml
+
+      - name: Push Local Changes
+        uses: stefanzweifel/git-auto-commit-action@v4.1.2
+
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v5.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_tag: ${{ steps.plantuml.outputs.tag  }}
+  # docker:
+  #   runs-on: ubuntu-latest
+  #   needs: tag
+  #   name: Build and push docker
+  #   steps:
+  #     - name: Set up QEMU
+  #       uses: docker/setup-qemu-action@v1
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v1
+  #     - name: Login to DockerHub
+  #       uses: docker/login-action@v1
+  #       with:
+  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #     - name: Build and push
+  #       id: docker_build
+  #       uses: docker/build-push-action@v2
+  #       with:
+  #         push: false
+  #         tags: holowinski/plantuml:latest
