@@ -38,12 +38,11 @@ jobs:
 
       - name: Bump version and push tag
         if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v5.1
-        with:
-          release_branches: main
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          custom_tag: ${{ steps.plantuml.outputs.tag  }}
+        uses: anothrNick/github-tag-action@1.33.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CUSTOM_TAG: ${{ steps.plantuml.outputs.tag }}
+          RELEASE_BRANCHES: main
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
