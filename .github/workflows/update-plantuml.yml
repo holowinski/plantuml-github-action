@@ -14,7 +14,7 @@ jobs:
         # using plantuml-server because plantuml for some reason returns empty list of releases
         name: PlantUML latest release
         run: |
-          echo "::set-output name=tag::$(curl -s https://api.github.com/repos/plantuml/plantuml-server/releases/latest | grep tag_name | sed 's/.*"tag_name": "\(.*\)",/\1/')"
+          echo "::set-output name=tag::$(curl -s https://api.github.com/repos/plantuml/plantuml-server/releases/latest | grep tag_name | sed 's/.*"tag_name": "v\(.*\)",/\1/')"
 
       # - name: "Get Latest tag"
       #   id: current
@@ -41,7 +41,7 @@ jobs:
         uses: anothrNick/github-tag-action@1.33.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CUSTOM_TAG: ${{ steps.plantuml.outputs.tag }}
+          CUSTOM_TAG: v${{ steps.plantuml.outputs.tag }}
           RELEASE_BRANCHES: main
 
       - name: Set up QEMU
@@ -63,4 +63,5 @@ jobs:
           push: true
           tags: holowinski/plantuml:latest, holowinski/plantuml:${{ steps.plantuml.outputs.tag }}
           build-args: |
+
             PLANTUML_VERSION=${{ steps.plantuml.outputs.tag }}
