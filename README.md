@@ -2,6 +2,9 @@
 
 PlantUML Github Action - kept up to date with PlantUML releases.
 
+This repository updates itself and produces a new version/tag on every
+PlantUML release.
+
 ## Usage
 
 ### Minimal
