@@ -1,7 +1,11 @@
 name: "PlantUML diagram generator"
 description: |
-  Generate PlantUML diagrams with always up to date PlantUML.
+  Generate PlantUML diagrams with always up to date PlantUML
 author: "@holowinski"
+
+branding:
+  icon: "bar-chart-2"
+  color: "white"
 
 inputs:
   args:
