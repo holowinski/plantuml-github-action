@@ -21,7 +21,7 @@ jobs:
       - name: Generate SVG Diagrams
         uses: holowinski/plantuml-github-action@main
         with:
-          args: -v -tsvg diagrams/*.puml
+          args: -v -tsvg examples/sequence.puml
 
       - name: Push Local Changes
         uses: stefanzweifel/git-auto-commit-action@v4.1.2
