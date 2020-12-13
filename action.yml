@@ -1,5 +1,6 @@
 name: "PlantUML diagram generator"
-description: "Generate plantUML diagrams"
+description: |
+  Generate PlantUML diagrams with always up to date PlantUML.
 author: "@holowinski"
 
 inputs:
