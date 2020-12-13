@@ -2,7 +2,7 @@
 
 PlantUML Github Action - kept up to date with PlantUML releases.
 
-## Usage:
+## Usage
 
 ### Minimal
 
