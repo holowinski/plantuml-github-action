@@ -12,7 +12,7 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v2
         with:
-          ref: example-bumping
+          ref: example
 
       - name: Update diagram
         run: |
@@ -27,4 +27,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4.1.2
         with:
           commit_message: "Regenerated example diagram - new comment received"
-          branch: example-bumping
+          branch: example
