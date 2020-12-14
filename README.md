@@ -2,6 +2,9 @@
 
 PlantUML Github Action - kept up to date with PlantUML releases.
 
+This repository updates itself and produces a new version/tag on every
+PlantUML release.
+
 ## Usage
 
 ### Minimal
@@ -60,3 +63,8 @@ jobs:
           commit_message: "Generate SVG files for PlantUML diagrams"
           branch: ${{ github.head_ref }}
 ```
+
+## Testing
+
+There's a [special issue](https://github.com/holowinski/plantuml-github-action/issues/4)
+which regenerates an example diagram on every comment - check it out.
