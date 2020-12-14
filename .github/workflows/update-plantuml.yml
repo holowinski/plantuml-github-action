@@ -32,14 +32,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           commit_message: "Bump PlantUML to ${{ steps.plantuml.outputs.tag }}"
-
-      - name: Bump version and push tag
-        if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
-        uses: anothrNick/github-tag-action@1.33.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CUSTOM_TAG: ${{ steps.plantuml.outputs.tag }}
-          RELEASE_BRANCHES: main
+          tagging_message: ${{ steps.plantuml.outputs.tag }}
 
       - name: Set up QEMU
         if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
