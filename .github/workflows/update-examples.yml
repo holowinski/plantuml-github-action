@@ -16,7 +16,7 @@ jobs:
 
       - name: Update diagram
         run: |
-          sed -i 's/^Bob->Alice : \(.*\)/Bob-Alice : \1 comment ${{ github.event.comment.id }}/' examples/sequence.puml
+          sed -i 's/^Bob->Alice : .*/Bob->Alice : hello comment ${{ github.event.comment.id }}/' examples/sequence.puml
 
       - name: Generate SVG Diagrams
         uses: holowinski/plantuml-github-action@main
