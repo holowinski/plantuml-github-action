@@ -23,6 +23,10 @@ jobs:
         with:
           args: -v -tsvg examples/sequence.puml
 
+      - name: Echo changes
+        run: |
+          git status
+
       - name: Push Local Changes
         uses: stefanzweifel/git-auto-commit-action@v4.1.2
         with:
