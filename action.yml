@@ -1,7 +1,8 @@
 name: "PlantUML diagram generator"
 description: |
   Generate PlantUML diagrams with always up to date PlantUML
-author: "@holowinski"
+  Forked from https://github.com/holowinski/plantuml-github-action
+author: "@babakontheweb"
 
 branding:
   icon: "bar-chart-2"
@@ -15,6 +16,6 @@ inputs:
 
 runs:
   using: "docker"
-  image: "docker://dstockhammer/plantuml:latest"
+  image: "docker://plantuml/plantuml:latest"
   args:
     - ${{ inputs.args }}
