@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Generate SVG Diagrams
         uses: holowinski/plantuml-github-action@main
@@ -45,12 +45,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Get changed UML files
         id: getfile
         run: |
-          echo "::set-output name=files::$(git diff --name-only HEAD^ HEAD | grep .puml | xargs)"
+          echo "name=files::$(git diff --name-only HEAD^ HEAD | grep .puml | xargs)" > $GITHUB_OUTPUT
 
       - name: Generate SVG Diagrams
         uses: holowinski/plantuml-github-action@main
@@ -58,7 +58,7 @@ jobs:
           args: -v -tsvg ${{steps.getfile.outputs.files}}
 
       - name: Push Local Changes
-        uses: stefanzweifel/git-auto-commit-action@v4.1.2
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Generate SVG files for PlantUML diagrams"
           branch: ${{ github.head_ref }}

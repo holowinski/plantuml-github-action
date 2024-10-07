@@ -8,43 +8,42 @@ jobs:
   bump_plantuml:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - id: plantuml
         # using plantuml-server because plantuml for some reason returns empty list of releases
         name: PlantUML latest release
         run: |
-          echo "::set-output name=tag::$(curl -s https://api.github.com/repos/plantuml/plantuml-server/releases/latest | grep tag_name | sed 's/.*"tag_name": "v\(.*\)",/\1/')"
+          echo "name=tag::$(curl -s https://api.github.com/repos/plantuml/plantuml-server/releases/latest | grep tag_name | sed 's/.*"tag_name": "v\(.*\)",/\1/')" >> $GITHUB_OUTPUT
 
       - name: "Get latest tag"
         id: current
         run: |
-          echo "::set-output name=tag::$(git ls-remote --tags --refs --sort="v:refname" origin | tail -n1 | sed 's/.*\///')"
+          echo "name=tag::$(git ls-remote --tags --refs --sort="v:refname" origin | tail -n1 | sed 's/.*\///')" >> $GITHUB_OUTPUT
 
       - name: Bump docker version
         if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
         run: |
           sed -i "s#holowinski/plantuml:.*#holowinski/plantuml:${{ steps.plantuml.outputs.tag }}\"#" action.yml
 
-      - name: Push Local Changes
+      - name: Commit PlantUML bump
         if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
-        uses: stefanzweifel/git-auto-commit-action@v4.7.2
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           ref: ${{ github.head_ref }}
           commit_message: "Bump PlantUML to ${{ steps.plantuml.outputs.tag }}"
-          tagging_message: ${{ steps.plantuml.outputs.tag }}
 
       - name: Set up QEMU
         if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to DockerHub
         if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -52,9 +51,15 @@ jobs:
       - name: Build and push
         if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
         id: docker_build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: holowinski/plantuml:latest, holowinski/plantuml:${{ steps.plantuml.outputs.tag }}
           build-args: |
             PLANTUML_VERSION=${{ steps.plantuml.outputs.tag }}
+
+      - name: Create tag
+        if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
+        run: |
+          git tag -a ${{ steps.plantuml.outputs.tag }} -m 'PlantUML ${{ steps.plantuml.outputs.tag }}'
+          git push origin tag ${{ steps.plantuml.outputs.tag }}
