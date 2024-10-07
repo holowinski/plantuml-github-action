@@ -41,7 +41,7 @@ jobs:
         id: sha
         if: steps.tag.outputs.exists == 'false'
         run: |
-          echo "main=$(git rev-parse origin/main)"
+          echo "main=$(git rev-parse origin/main)" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         if: steps.tag.outputs.exists == 'false'
