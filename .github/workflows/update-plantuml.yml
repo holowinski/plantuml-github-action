@@ -3,58 +3,78 @@ on:
   schedule:
     - cron: "0 * * * *"
   workflow_dispatch:
+    inputs:
+      plantuml_version:
+        description: "Plant UML version"
+        type: string
 
 jobs:
   bump_plantuml:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - id: plantuml
         # using plantuml-server because plantuml for some reason returns empty list of releases
         name: PlantUML latest release
         run: |
-          echo "::set-output name=tag::$(curl -s https://api.github.com/repos/plantuml/plantuml-server/releases/latest | grep tag_name | sed 's/.*"tag_name": "v\(.*\)",/\1/')"
+          if [[ "${{ inputs.plantuml_version }}" ]]; then echo "tag=${{ inputs.plantuml_version }}"; else echo "tag=$(curl -s https://api.github.com/repos/plantuml/plantuml-server/releases/latest | grep tag_name | sed 's/.*"tag_name": "v\(.*\)",/\1/')"; fi >> $GITHUB_OUTPUT
 
-      - name: "Get latest tag"
-        id: current
+      - name: "Check if tag already exists"
+        id: tag
         run: |
-          echo "::set-output name=tag::$(git ls-remote --tags --refs --sort="v:refname" origin | tail -n1 | sed 's/.*\///')"
+          git ls-remote --exit-code origin refs/tags/${{ steps.plantuml.outputs.tag }} && echo "exists=true" || echo "exists=false" >> $GITHUB_OUTPUT
 
       - name: Bump docker version
-        if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
+        if: steps.tag.outputs.exists == 'false'
         run: |
           sed -i "s#holowinski/plantuml:.*#holowinski/plantuml:${{ steps.plantuml.outputs.tag }}\"#" action.yml
 
-      - name: Push Local Changes
-        if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
-        uses: stefanzweifel/git-auto-commit-action@v4.7.2
+      - name: Commit PlantUML bump
+        if: steps.tag.outputs.exists == 'false'
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           ref: ${{ github.head_ref }}
           commit_message: "Bump PlantUML to ${{ steps.plantuml.outputs.tag }}"
-          tagging_message: ${{ steps.plantuml.outputs.tag }}
+
+      - name: Get latest SHA
+        id: sha
+        if: steps.tag.outputs.exists == 'false'
+        run: |
+          echo "main=$(git rev-parse origin/main)" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
-        if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
-        uses: docker/setup-qemu-action@v1
+        if: steps.tag.outputs.exists == 'false'
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
-        uses: docker/setup-buildx-action@v1
+        if: steps.tag.outputs.exists == 'false'
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to DockerHub
-        if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
-        uses: docker/login-action@v1
+        if: steps.tag.outputs.exists == 'false'
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        if: ${{ steps.plantuml.outputs.tag != steps.current.outputs.tag }}
+        if: steps.tag.outputs.exists == 'false'
         id: docker_build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: holowinski/plantuml:latest, holowinski/plantuml:${{ steps.plantuml.outputs.tag }}
           build-args: |
             PLANTUML_VERSION=${{ steps.plantuml.outputs.tag }}
+
+      - name: Create tag
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ steps.plantuml.outputs.tag }}',
+              sha: '${{ steps.sha.outputs.main }}'
+            })
