@@ -76,5 +76,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: 'refs/tags/${{ steps.plantuml.outputs.tag }}',
-              sha: ${{ steps.sha.outputs.main }}
+              sha: '${{ steps.sha.outputs.main }}'
             })
