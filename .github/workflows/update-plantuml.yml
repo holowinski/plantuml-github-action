@@ -25,11 +25,6 @@ jobs:
         run: |
           git ls-remote --exit-code origin refs/tags/${{ steps.plantuml.outputs.tag }} && echo "exists=true" || echo "exists=false" >> $GITHUB_OUTPUT
 
-      - name: "OUTPUT"
-        run: |
-          echo ${{ steps.plantuml.outputs.tag }}
-          echo ${{ steps.tag.outputs.exists }}
-
       - name: Bump docker version
         if: steps.tag.outputs.exists == 'false'
         run: |
@@ -41,6 +36,12 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           commit_message: "Bump PlantUML to ${{ steps.plantuml.outputs.tag }}"
+
+      - name: Get latest SHA
+        id: sha
+        if: steps.tag.outputs.exists == 'false'
+        run: |
+          echo "main=$(git rev-parse origin/main)"
 
       - name: Set up QEMU
         if: steps.tag.outputs.exists == 'false'
@@ -68,7 +69,12 @@ jobs:
             PLANTUML_VERSION=${{ steps.plantuml.outputs.tag }}
 
       - name: Create tag
-        if: steps.tag.outputs.exists == 'false'
-        run: |
-          git tag -a ${{ steps.plantuml.outputs.tag }} -m 'PlantUML ${{ steps.plantuml.outputs.tag }}'
-          git push origin tag ${{ steps.plantuml.outputs.tag }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ steps.plantuml.outputs.tag }}',
+              sha: ${{ steps.sha.outputs.main }}
+            })
