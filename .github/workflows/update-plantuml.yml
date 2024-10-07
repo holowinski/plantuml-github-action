@@ -69,6 +69,7 @@ jobs:
             PLANTUML_VERSION=${{ steps.plantuml.outputs.tag }}
 
       - name: Create tag
+        if: steps.tag.outputs.exists == 'false'
         uses: actions/github-script@v7
         with:
           script: |
