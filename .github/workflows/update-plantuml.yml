@@ -25,6 +25,11 @@ jobs:
         run: |
           git ls-remote --exit-code origin refs/tags/${{ steps.plantuml.outputs.tag }} && echo "exists=true" || echo "exists=false" >> $GITHUB_OUTPUT
 
+      - name: "OUTPUT"
+        run: |
+          echo ${{ steps.plantuml.outputs.tag }}
+          echo ${{ steps.tag.outputs.exists }}
+
       - name: Bump docker version
         if: ${{ steps.tag.outputs.exists == false }}
         run: |
